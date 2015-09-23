@@ -16,10 +16,7 @@ import sys
 class AlarmAbide(object):
     """Alarm Abide"""
     def __init__(self, directory):
-        try:
-            self.monitor_directory = directory
-        except:
-            raise
+        self.monitor_directory = directory
 
     def check_alert(self, alert, resource):
         """Checks to see if an alert should occur
@@ -48,18 +45,13 @@ class AlarmAbide(object):
 
         for path in paths:
             if os.path.isfile(path):
-                try:
-                    with open(path, 'r') as alert_file:
-                        time = alert_file.readline()
-                    time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
-                    if time > datetime.now():
-                        return False
-                    else:
-                        self.remove_alert(alert, resource)
-                except:
-                    raise
-
-        return True
+                with open(path, 'r') as alert_file:
+                    time = alert_file.readline()
+                time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+                if time > datetime.now():
+                    return False
+                else:
+                    self.remove_alert(alert, resource)
 
     def create_alert(self, alert, resource, time):
         """Create alert file
@@ -80,26 +72,15 @@ class AlarmAbide(object):
         Raises:
             Everything
         """
-        try:
-            alert_time = datetime.now() + timedelta(seconds=time)
-            alert_time = alert_time.replace(microsecond=0)
-            path = os.path.join(self.monitor_directory, alert, resource)
-        except:
-            raise
+        alert_time = datetime.now() + timedelta(seconds=time)
+        alert_time = alert_time.replace(microsecond=0)
+        path = os.path.join(self.monitor_directory, alert, resource)
 
-        try:
-            if not os.path.isdir(os.path.dirname(path)):
-                os.makedirs(os.path.dirname(path))
-        except:
-            raise
+        if not os.path.isdir(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
 
-        try:
-            with open(path, 'w') as alert_file:
-                alert_file.write(str(alert_time))
-            return True
-        except:
-            raise
-        return False
+        with open(path, 'w') as alert_file:
+            alert_file.write(str(alert_time))
 
     def remove_alert(self, alert, resource):
         """Remove alert file
@@ -118,10 +99,7 @@ class AlarmAbide(object):
             Everything
         """
         path = os.path.join(self.monitor_directory, alert, resource)
-        try:
-            os.remove(path)
-        except:
-            raise
+        os.remove(path)
 
 def main():
     """Main function for command line use
