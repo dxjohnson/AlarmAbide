@@ -10,6 +10,7 @@ Created By: David Johnson
 
 from datetime import datetime
 from datetime import timedelta
+import optparse
 import os
 import sys
 
@@ -52,6 +53,7 @@ class AlarmAbide(object):
                     return False
                 else:
                     self.remove_alert(alert, resource)
+        return True
 
     def create_alert(self, alert, resource, time):
         """Create alert file
@@ -123,38 +125,31 @@ def main():
     Raises:
         Everything
     """
+    parser = optparse.OptionParser()
+    parser.add_option('-a', '--alert', dest='alert')
+    parser.add_option('-c', '--command', type='choice', choices=['check', 'create', 'remove'], dest='command')
+    parser.add_option('-d', '--directory', dest='directory', action='store')
+    parser.add_option('-t', '--time', dest='time', action='store', type='int')
+    parser.add_option('-r', '--resource', dest='resource', action='store')
+    options, args = parser.parse_args()
+
     try:
-        command = sys.argv[1]
-        directory = sys.argv[2]
-        abide = AlarmAbide(directory)
-        alert = sys.argv[3]
-        resource = sys.argv[4]
-        if command == "check":
-            if abide.check_alert(alert, resource):
+        abide = AlarmAbide(options.directory)
+        if options.command == "check":
+            if abide.check_alert(options.alert, options.resource):
                 print "True"
             else:
                 print "False"
-        elif command == "create":
-            try:
-                time = int(sys.argv[5])
-            except:
-                raise
-            abide.create_alert(alert, resource, time)
-        elif command == "remove":
-            abide.remove_alert(alert, resource)
-        elif command == "help":
-            print "Usage: $0 check|create|remove directory <parameters>"
-            print "$2 = directory to place check"
-            print "$3 = alert, $4 = resource"
-            print "For create: $5 = time in seconds"
-        else:
-            sys.stderr.write('ERROR: unknown option - %s\n' % command)
+        elif options.command == "create":
+            abide.create_alert(options.alert, options.resource, options.time)
+        elif options.command == "remove":
+            abide.remove_alert(options.alert, options.resource)
     except Exception, err:
         print err
-        sys.exit(1)
+        return 1
 
-    sys.exit(0)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
 
