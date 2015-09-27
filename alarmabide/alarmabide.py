@@ -19,7 +19,7 @@ class AlarmAbide(object):
     def __init__(self, directory):
         self.monitor_directory = directory
 
-    def check_alert(self, alert, resource):
+    def check(self, alert, resource):
         """Checks to see if an alert should occur
 
         Checks each of the possible paths to see if files exists for alert. If the
@@ -52,10 +52,10 @@ class AlarmAbide(object):
                 if time > datetime.now():
                     return False
                 else:
-                    self.remove_alert(alert, resource)
+                    self.remove(alert, resource)
         return True
 
-    def create_alert(self, alert, resource, time):
+    def create(self, alert, resource, time):
         """Create alert file
 
         Create a new alert file with now() + time in seconds for specified
@@ -84,11 +84,11 @@ class AlarmAbide(object):
         with open(path, 'w') as alert_file:
             alert_file.write(str(alert_time))
 
-    def remove_alert(self, alert, resource):
+    def remove(self, alert, resource):
         """Remove alert file
 
         Remove file for given resource. Typically to be used on command line or
-            by scripts, however also called by check_alert if timestamp old.
+            by scripts, however also called by check if timestamp old.
 
         Args:
             alert: Name of the alert (script)
@@ -127,7 +127,8 @@ def main():
     """
     parser = optparse.OptionParser()
     parser.add_option('-a', '--alert', dest='alert')
-    parser.add_option('-c', '--command', type='choice', choices=['check', 'create', 'remove'], dest='command')
+    parser.add_option('-c', '--command', type='choice',
+                      choices=['check', 'create', 'remove'], dest='command')
     parser.add_option('-d', '--directory', dest='directory', action='store')
     parser.add_option('-t', '--time', dest='time', action='store', type='int')
     parser.add_option('-r', '--resource', dest='resource', action='store')
@@ -136,14 +137,14 @@ def main():
     try:
         abide = AlarmAbide(options.directory)
         if options.command == "check":
-            if abide.check_alert(options.alert, options.resource):
+            if abide.check(options.alert, options.resource):
                 print "True"
             else:
                 print "False"
         elif options.command == "create":
-            abide.create_alert(options.alert, options.resource, options.time)
+            abide.create(options.alert, options.resource, options.time)
         elif options.command == "remove":
-            abide.remove_alert(options.alert, options.resource)
+            abide.remove(options.alert, options.resource)
     except Exception, err:
         print err
         return 1
